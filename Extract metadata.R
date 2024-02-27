@@ -14,7 +14,7 @@ elephant_1_20 <- rcrossref::cr_cn(paper_db_data$Doi[1:20], format = "bibentry")
 
 # bibentry can be converted later on to a dataframe 
 # loop over all dois from the database: 
-elephant <- vector(mode = "list", length = nrow(paper_db_data))
+elephant <- vector(mode = "list", length = nrow(paper_db_data)) #check before that only papers with doi are in paper db!
 
 for(i in 1:6135){
   elephant[[i]] <- rcrossref::cr_cn(paper_db_data$Doi[i], format = "bibentry")
@@ -159,127 +159,229 @@ for(k in 1:nrow(scopus_data)){
 # export scopus metadata
 write.csv(scopus_meta, file = "Data/Metadata/new_metadata_by_scopuslink.csv")
 
+# Merge all extracted metadata to the original database
+library(tidyverse)
+paper_db_data <- readxl::read_excel("Data/Metadata/paper_db_data.xlsx")
+new_metadata_by_doi_cleaned <- readxl::read_excel("Data/Metadata/new_metadata_by_doi_cleaned.xlsx")
+new_metadata_by_scopus_cleaned <- readxl::read_excel("Data/Metadata/new_meatadata_by_Scopus_cleaned.xlsx")
+new_metadata_by_link_cleaned <- read_csv("Data/Metadata/metaData_links.csv")
+glimpse(new_metadata_by_link_cleaned)
 
-# li_jan <- readLines('https://www.nature.com/articles/s41558-019-0601-y') # insert URL here
-# li <- readLines(scopus_data$Link[1])
-# li <- readLines("https://www.scopus.com/inward/record.uri?eid=2-s2.0-33644617084&partnerID=40&md5=037305236324e22a9e8539a8f79069d7")
-# doi <- 0
-# for(i in 1:length(li)){
-#   if(sum(grep('doi', li[i])) == 1 |
-#      sum(grep('DOI', li[i])) == 1){ # could add other options here - "doi" and "DOI" appear the most obvious to me
-#     subs <- strsplit(li[i], '\"') # this could be critical - the different websites may vary here
-#     for(j in 1:length(subs[[1]])){
-#       if(startsWith(subs[[1]][j], "10.") == T){
-#         print(subs[[1]][j])
-#         doi <- subs[[1]][j]
-#       }
-#     }
-#     break
-#   }
-# }
-# 
-# subs
-# doi
-# 
-# 
-# li <- readLines('https://www.scopus.com/inward/record.uri?eid=2-s2.0-0032314286&partnerID=40&md5=ea57fc027bcf5d67989f81bf298ab4e9') # insert URL here
-# li <- readLines(scopus_data$Link[92])
-# li <- readLines(scopus_data$Link[1])
-# for(i in 1:length(li)){
-#   if(sum(grep('sc-page-title', li[i])) == 1){ # could add other options here - "doi" and "DOI" appear the most obvious to me
-#     
-#     subs <- strsplit(li[i], '\"') # this could be critical - the different websites may vary here
-#     
-#     for(j in 1:length(subs[[1]])){
-#       if(startsWith(subs[[1]][j], 'Document details - ') == T){
-#         if(substr(subs[[1]][j], nchar(subs[[1]][j]), nchar(subs[[1]][j])) == " "){
-#           print(paste0(substr(subs[[1]][j], 20, 999), substr(subs[[1]][j+1], 1, 999)))
-#         } else {
-#           print(substr(subs[[1]][j], 20, 999))
-#         }
-#       }
-#     }
-#     
-#     break
-#   }
-# }
-# 
-# for(i in 1:length(li)){
-#   if(sum(grep('/section><input ', li[i])) == 1){ # could add other options here - "doi" and "DOI" appear the most obvious to me
-#     
-#     subs <- strsplit(li[i], '\"') # this could be critical - the different websites may vary here
-#     print(subs[[1]][36])
-#     # for(j in 1:length(subs[[1]])){
-#     #   if(startsWith(subs[[1]][j], 'Document details - ') == T){
-#     #     print(substr(subs[[1]][j], 20, 999))
-#     #   }
-#     # }
-#     
-#     break
-#   }
-# }
+paper_db_data <- paper_db_data%>%
+  rename("doi_from_database" = Doi, 
+         "link" = Link)
+new_metadata_by_scopus_cleaned <- new_metadata_by_scopus_cleaned%>%
+  rename("link" = `link from database`)
+
+doi_joined <- right_join(x = paper_db_data, y = new_metadata_by_doi_cleaned, by = "doi_from_database")
+paper_db_data[10, ]$doi_from_database
+cookie <- new_metadata_by_doi_cleaned
+
+which(new_metadata_by_doi_cleaned$"doi_from_database" == "10.1186/s10152-019-0532-z")
+new_metadata_by_doi_cleaned <- new_metadata_by_doi_cleaned[-10, ]
+new_metadata_by_doi_cleaned <- new_metadata_by_doi_cleaned%>%
+  select(title, doi_from_database, year)%>%
+  distinct()
+
+doi_joined <- right_join(x = paper_db_data, y = new_metadata_by_doi_cleaned, by = "doi_from_database")
+paper_db_data[2481, ]$doi_from_database
+cookie <- new_metadata_by_doi_cleaned%>%
+  filter(doi_from_database == "10.1023/A:1020361124656")
+View(cookie)
+which(new_metadata_by_doi_cleaned$"doi_from_database" == "10.1023/A:1020361124656")
+new_metadata_by_doi_cleaned <- new_metadata_by_doi_cleaned[-2434, ]
+doi_joined <- right_join(x = paper_db_data, y = new_metadata_by_doi_cleaned, by = "doi_from_database")
+paper_db_data[4093, ]$doi_from_database
+cookie <- new_metadata_by_doi_cleaned%>%
+  filter(doi_from_database == "10.1117/12.274755")
+View(cookie)
+which(new_metadata_by_doi_cleaned$"doi_from_database" == "10.1117/12.274755")
+new_metadata_by_doi_cleaned <- new_metadata_by_doi_cleaned[-3841, ]
+doi_joined <- right_join(x = paper_db_data, y = new_metadata_by_doi_cleaned, by = "doi_from_database")
+paper_db_data[5120, ]$doi_from_database
+cookie <- new_metadata_by_doi_cleaned%>%
+  filter(doi_from_database == "10.1007/698-2014-330")
+View(cookie)
+which(new_metadata_by_doi_cleaned$"doi_from_database" == "10.1007/698-2014-330" & new_metadata_by_doi_cleaned$year == 2014)
+new_metadata_by_doi_cleaned <- new_metadata_by_doi_cleaned[-4570, ]
+doi_joined <- right_join(x = paper_db_data, y = new_metadata_by_doi_cleaned, by = "doi_from_database")
 
 
-#####
-# year <- 0
-# for(i in 1:length(li)){
-#   if(sum(grep('year=', li[i])) == 1){ # could add other options here - "doi" and "DOI" appear the most obvious to me
-#     
-#     subs <- strsplit(li[i], ';') # this could be critical - the different websites may vary here
-#     
-#     for(j in 1:length(subs[[1]])){
-#       if(startsWith(subs[[1]][j], 'year=') == T){
-#         print(substr(subs[[1]][j], 6, 9))
-#         #year <- substr(subs[[1]][j], 6, 9)
-#       }
-#     }
-#     
-#     break
-#   }
-# }
+scopus_joined <- right_join(x = paper_db_data, y = new_metadata_by_scopus_cleaned, by = "link")
+new_metadata_by_scopus_cleaned <- new_metadata_by_scopus_cleaned%>%
+  select(link, title, pub_year)%>%
+  distinct()
+scopus_joined <- right_join(x = paper_db_data, y = new_metadata_by_scopus_cleaned, by = "link")
+paper_db_data[4776, ]$link
+cookie <- new_metadata_by_scopus_cleaned%>%
+  filter(link == "https://www.scopus.com/inward/record.uri?eid=2-s2.0-85042568292&partnerID=40&md5=a3fcb73ce77f11df48dbe7e5a8db533f")
+View(cookie)
+which(new_metadata_by_scopus_cleaned$link == "https://www.scopus.com/inward/record.uri?eid=2-s2.0-85042568292&partnerID=40&md5=a3fcb73ce77f11df48dbe7e5a8db533f")
+new_metadata_by_scopus_cleaned <- new_metadata_by_scopus_cleaned[-461, ]
+scopus_joined <- right_join(x = paper_db_data, y = new_metadata_by_scopus_cleaned, by = "link")
+
+
+new_metadata_by_link_cleaned <- new_metadata_by_link_cleaned%>%
+  select(title, date, link)%>%
+  distinct()
+
+link_joined <- right_join(x = paper_db_data, y = new_metadata_by_link_cleaned, by = "link")
+paper_db_data[5320, ]$link
+cookie <- new_metadata_by_link_cleaned%>%
+  filter(link == "http://www.vliz.be/imisdocs/publications/356007.pdf")
+View(cookie)
+which(new_metadata_by_link_cleaned$link =="http://www.vliz.be/imisdocs/publications/356007.pdf")
+
+new_metadata_by_link_cleaned <- new_metadata_by_link_cleaned[-282, ]
+
+link_joined <- right_join(x = paper_db_data, y = new_metadata_by_link_cleaned, by = "link")
+paper_db_data[5339, ]$link
+cookie <- new_metadata_by_link_cleaned%>%
+  filter(link == "http://www.waveworkshop.org/13thWaves/Papers/Groll_wave_Banff2013.pdf")
+View(cookie)
+which(new_metadata_by_link_cleaned$link =="http://www.waveworkshop.org/13thWaves/Papers/Groll_wave_Banff2013.pdf")
+
+new_metadata_by_link_cleaned <- new_metadata_by_link_cleaned[-277, ]
+link_joined <- right_join(x = paper_db_data, y = new_metadata_by_link_cleaned, by = "link")
+
+paper_db_data[5784, ]$link
+cookie <- new_metadata_by_link_cleaned%>%
+  filter(link == "http://aei.pitt.edu/96396/")
+View(cookie)
+which(new_metadata_by_link_cleaned$link =="http://aei.pitt.edu/96396/")
+
+new_metadata_by_link_cleaned <- new_metadata_by_link_cleaned[-173, ]
+link_joined <- right_join(x = paper_db_data, y = new_metadata_by_link_cleaned, by = "link")
+
+
+#merge all three tables
+doi_joined <- doi_joined%>%
+  select(`Article ID`, `Article URL`, title, year)
+scopus_joined <- scopus_joined%>%
+  select(`Article ID`, `Article URL`, title, pub_year)%>%
+  rename("year" = pub_year)
+link_joined <- link_joined%>%
+  select(`Article ID`, `Article URL`, title, date)%>%
+  rename("year" = date)
+
+new_metadata <- rbind(doi_joined, link_joined, scopus_joined)
+new_metadata <- new_metadata%>%
+  rename("pdf_name" = `Article ID`)
+
+
+# join with sysrev data
+answers <- readxl::read_excel("~/Desktop/Doktorarbeit/North_Sea_Review/Answers_P99278_1219_A5795.xlsx")
+articles <- readxl::read_excel("~/Desktop/Doktorarbeit/North_Sea_Review/Articles_P99278_1219_A5795.xlsx")
+
+articles_cleaned <- articles%>%
+  mutate(title = gsub(".pdf", "", Title))%>%
+  select(`Article ID`, `Article URL`, title)%>%
+  rename("pdf_name" = title)
+articles_cleaned%>%
+  janitor::get_dupes(pdf_name)
+
+articles_metadata <- right_join(x = new_metadata, y = articles_cleaned, by = "pdf_name")
+test <- scopus_joined%>%
+  janitor::get_dupes(`Article ID`)
+
+articles_metadata <- articles_metadata%>%
+  select(pdf_name, title, year, `Article ID`, `Article URL.y`)%>%
+  rename("Article_URL" = `Article URL.y`)
+articles_metadata%>%
+  janitor::get_dupes(`Article ID`)
+
+# join with answers
+answers_metadata <- right_join(x = articles_metadata, y = answers, by = "Article ID")
+answers_metadata_cleaned <- answers_metadata%>%
+  select(!c(`User Notes`, Title, Journal, Authors, Status, `User Count`, Users, `Article URL`))
+
+
+# test for duplicate papers, clear for NAs
+answers_metadata_cleaned <- answers_metadata_cleaned%>%
+  drop_na(title)
 
 
 
-# Testing how to get metadata information ----
-# compare if sysrev title and metadata title match or not
-
-str_detect(string = paper_db$Title...11, pattern = paper_db$Title...4)
-
-all(paper_db$Title...11 == paper_db$Title...4)
-identical(paper_db$Title...4,paper_db$Title...11)
-
-cookie <- ifelse(paper_db$Title...4 == paper_db$Title...11,1,0)
-
-library(readxl)
-writ
-
-install.packages("rcrossref")
-library(rcrossref)
-
-rcrossref::cr_citation(doi = "10.1177/0309133319879324")
-rcrossref::cr_cn(doi = "10.1177/0309133319879324", format = "text")
-rcrossref::cr_cn(url = "https://www.scopus.com/inward/record.uri?eid=2-s2.0-85074715219&doi=10.1016%2fj.ecss.2019.106440&partnerID=40&md5=c24c2af05df2b06f16687751c1c576da")
+dupl <- answers_metadata_cleaned%>%
+  janitor::get_dupes(title)   
 
 
-cookie <- rcrossref::cr_cn(doi = paper_db$Doi[1:4], format = "bibentry")
+write.csv(dupl, file = "Data/duplicates.csv")
 
-df <- data.table::rbindlist(cookie, fill = TRUE)
-write.csv(df, file = "test.csv")
+# import cleaned duplicates again: 
+duplicate_cleaned <- readxl::read_excel("Data/duplicate_cleaned.xlsx")
+blub <- duplicate_cleaned%>%
+  filter(Keep == 1)%>%
+  group_by(title)%>%
+  slice_sample(n = 1)
+blub$Keep <- 2
+duplicate_cleaned[duplicate_cleaned$`Article ID` %in% blub$`Article ID`, ]$Keep <- 2
+duplicates_out <- duplicate_cleaned%>%
+  filter(Keep != 2) # 0 = false papers, 1 = papers duplicated, 2 = selected duplicate
+
+answers_for_analysis <- answers_metadata_cleaned%>%
+  filter(!(`Article ID` %in% duplicates_out$`Article ID`))
 
 
+dupl_in_answers <- answers_for_analysis%>%
+  janitor::get_dupes(`Article ID`)
 
-write.csv(cookie, file = "test.csv")
-rcrossref::cr_cn(doi = "10.1016%2fj.scitotenv.2019.133715", format = "text")
+write.csv(dupl_in_answers, file = "Data/dupl_in_answers.csv")
 
-elephant <- rcrossref::cr_cn(dois = paper_db$Doi)
+answers_dupl_cleaned<- readxl::read_excel("Data/dupl_in_answers_cleaned.xlsx")
+answers_dupl_out <- answers_dupl_cleaned%>%
+  filter(Keep == 0)
+
+rows_out <- which(answers_for_analysis$title %in% answers_dupl_out$title)
+answers_for_analysis <- answers_for_analysis[-c(rows_out), ]
 
 
+answers_for_analysis%>%
+  janitor::get_dupes(Article_URL)
+# 0 duplicates :D
+summary(answers_for_analysis)
+write.csv(answers_for_analysis, file = "Data/answers_for_analysis.csv")
+answers_for_analysis_with_years <- read_delim("Data/answers_for_analysis_with_years.csv", 
+                                              delim = ";", escape_double = FALSE, trim_ws = TRUE)
+answers_for_analysis_with_years <- answers_for_analysis_with_years%>%
+  drop_na(year)
 
-rcrossref::cr_cn(doi = "10.1177/0309133319879324", format = "text", raw = TRUE)
-typeof(cookie)
+write_csv(answers_for_analysis_with_years, file = "Data/answers_meta_final.csv")
 
-install.packages("bibtex")
-library(bibtex)
+# Just for fun analysis ----
+# answers_with_user <- answers_metadata%>%
+#   select(!c(`User Notes`, Title, Journal, Authors, Status, `User Count`, `Article URL`))
+# answers_with_user <- answers_with_user%>%
+#   drop_na(title)
+# dupl_selection <- duplicate_cleaned[, c(6, 29)]
+# dupl_selection$`Article ID` <- as.character(dupl_selection$`Article ID`)
+# answers_with_users_dupl_marked <- right_join(x = answers_with_user, y = dupl_selection, by = "Article ID")
+# answers_with_user[4018, ]$`Article ID`
+# cookie <- dupl_selection%>%
+#   filter(`Article ID` == "14883303")
+# View(cookie)
+# which(dupl_selection$`Article ID` =="14883303")
+# dupl_selection <- dupl_selection[-964, ]
+# answers_with_users_dupl_marked <- right_join(x = answers_with_user, y = dupl_selection, by = "Article ID")
+# answers_with_user[4193, ]$`Article ID`
+# cookie <- dupl_selection%>%
+#   filter(`Article ID` == "14884624")
+# View(cookie)
+# which(dupl_selection$`Article ID` =="14884624")
+# dupl_selection <- dupl_selection[-219, ]
+# answers_with_users_dupl_marked <- right_join(x = answers_with_user, y = dupl_selection, by = "Article ID")
+# answers_with_user[4205, ]$`Article ID`
+# cookie <- dupl_selection%>%
+#   filter(`Article ID` == "14886278")
+# View(cookie)
+# which(dupl_selection$`Article ID` =="14886278")
+# dupl_selection <- dupl_selection[-275, ]
+# answers_with_users_dupl_marked <- right_join(x = answers_with_user, y = dupl_selection, by = "Article ID")
 
-write.csv(cookie, file = "test.csv")
+shark <- answers_with_users_dupl_marked%>%
+  drop_na(Comment)%>%
+  select(title, Users, Comment)
+glimpse(shark)
+View(shark)
+unique(shark$Users)
 
