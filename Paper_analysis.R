@@ -219,16 +219,17 @@ dat <- answers_meta_final%>%
   separate_longer_delim(`Anthropogenic driver(s)`, delim = "|||")%>%
   separate_longer_delim(`Precision_of_the driver(s)`, delim = "|||")%>%
   separate_longer_delim(`Analyzed impact(s)`, delim = "|||")%>%
-  separate_longer_delim(`Nature of the study population`, delim = "|||")%>%
-  group_by(`Anthropogenic driver(s)`, `Precision_of_the driver(s)`, `Analyzed impact(s)`, `Nature of the study population`)%>%
-  count()
+  separate_longer_delim(`Nature of the study population`, delim = "|||")
 
 sankey_ploty <- vector(mode = "list", length = length(unique(dat$`Anthropogenic driver(s)`)))
 drivers <- unique(dat$`Anthropogenic driver(s)`)
 drivers <- drivers[-7]
-for(i in 1:length(unique(dat$`Anthropogenic driver(s)`))){
+for(i in 1:(length(unique(dat$`Anthropogenic driver(s)`))-1)){
   temp <- dat%>%
-    filter(`Anthropogenic driver(s)` == drivers[i])
+    filter(`Anthropogenic driver(s)` == drivers[i])%>%
+    select(`Precision_of_the driver(s)`, `Analyzed impact(s)`, `Nature of the study population`)%>%
+    group_by(`Precision_of_the driver(s)`, `Analyzed impact(s)`, `Nature of the study population`)%>%
+    count()
   links <- temp%>%
     transmute(source = `Precision_of_the driver(s)`, target = `Analyzed impact(s)`, value = n, linkgroup = `Analyzed impact(s)`)
   
