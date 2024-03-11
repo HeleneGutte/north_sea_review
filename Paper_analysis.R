@@ -39,7 +39,37 @@ paper1 <- answers_meta_final%>%
   dplyr::filter(!is.na(`Analyzed impact(s) if ""other""`) | !is.na(`Precision of the driver(s) if ""other""`) | !is.na(`Nature of the population if ""other""`))
 # 379 have something written in one of the other labels. Some of them should be added to the initial labels e.g. noise and climate change scenario, but some of them are useless or unnecessary. 
 # Do it manually?
+other_impacts <- paper1%>%
+  select(`Analyzed impact(s) if ""other""`)%>%
+  filter(!(is.na(`Analyzed impact(s) if ""other""`)))%>%
+  mutate(`Analyzed impact(s) if ""other""` = tolower(`Analyzed impact(s) if ""other""`))%>%
+  group_by(`Analyzed impact(s) if ""other""`)%>%
+  count()%>%
+  arrange(desc(n))
+other_impacts
 
+other_drivers <- paper1%>%
+  select(`Precision of the driver(s) if ""other""`)%>%
+  filter(!(is.na(`Precision of the driver(s) if ""other""`)))%>%
+  mutate(`Precision of the driver(s) if ""other""` = tolower(`Precision of the driver(s) if ""other""`))%>%
+  group_by(`Precision of the driver(s) if ""other""`)%>%
+  count()%>%
+  arrange(desc(n))
+other_drivers
+
+other_population <- paper1%>%
+  select(`Nature of the population if ""other""`)%>%
+  filter(!(is.na(`Nature of the population if ""other""`)))%>%
+  mutate(`Nature of the population if ""other""` = tolower(`Nature of the population if ""other""`))%>%
+  group_by(`Nature of the population if ""other""`)%>%
+  count()%>%
+  arrange(desc(n))
+other_population
+
+write_csv(paper1, file = "Data/papers_with_other.csv")
+write_csv(other_impacts, file = "Data/other_impacts.csv")
+write_csv(other_drivers, file = "Data/other_drivers.csv")
+write_csv(other_population, file = "Data/other_population.csv")
 
 # 4. Main drivers over time ----
 dat <- answers_meta_final%>%
@@ -179,3 +209,47 @@ ggplot(data = dat, aes(x = `Anthropogenic driver(s)`, y = n))+
   labs(x = "")+
   theme(axis.text.x = element_blank(), 
         axis.ticks.x = element_blank())
+
+# Figure 3 Sankey diagrams for each main driver ----
+install.packages("networkD3")
+library(networkD3)
+dat <- answers_meta_final%>%
+  filter(year != 2021)%>%  
+  select(nr, `Anthropogenic driver(s)`, `Precision_of_the driver(s)`, `Analyzed impact(s)`, `Nature of the study population`)%>%
+  separate_longer_delim(`Anthropogenic driver(s)`, delim = "|||")%>%
+  separate_longer_delim(`Precision_of_the driver(s)`, delim = "|||")%>%
+  separate_longer_delim(`Analyzed impact(s)`, delim = "|||")%>%
+  separate_longer_delim(`Nature of the study population`, delim = "|||")%>%
+  group_by(`Anthropogenic driver(s)`, `Precision_of_the driver(s)`, `Analyzed impact(s)`, `Nature of the study population`)%>%
+  count()
+
+sankey_ploty <- vector(mode = "list", length = length(unique(dat$`Anthropogenic driver(s)`)))
+drivers <- unique(dat$`Anthropogenic driver(s)`)
+drivers <- drivers[-7]
+for(i in 1:length(unique(dat$`Anthropogenic driver(s)`))){
+  temp <- dat%>%
+    filter(`Anthropogenic driver(s)` == drivers[i])
+  links <- temp%>%
+    transmute(source = `Precision_of_the driver(s)`, target = `Analyzed impact(s)`, value = n, linkgroup = `Analyzed impact(s)`)
+  
+  links <- rbind(links, temp%>%
+                      transmute(source = `Analyzed impact(s)`, target = `Nature of the study population`, value = n, linkgroup= `Analyzed impact(s)`))
+  nodes <- data.frame(
+    name=c(as.character(links$source), as.character(links$target)) %>% 
+      unique())
+  nodes$group<-'nodes'
+  links$IDsource <- match(links$source, nodes$name)-1 
+  links$IDtarget <- match(links$target, nodes$name)-1
+  sankey_ploty[[i]] <- sankeyNetwork(Links = links, Nodes = nodes, Source = "IDsource", Target = "IDtarget", 
+                     iterations = 0, Value = "value", NodeID = "name",
+                     fontSize = 16, fontFamily = 'Ubuntu',
+                     #colourScale=my_color, 
+                     LinkGroup="linkgroup", NodeGroup = "group")
+  
+}
+sankey_ploty[[1]]
+sankey_ploty[[2]]
+sankey_ploty[[3]]
+sankey_ploty[[4]]
+sankey_ploty[[5]]
+sankey_ploty[[6]]
