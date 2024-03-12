@@ -15,8 +15,13 @@ my_colours <- c("Climate change" = "orange2", "Direct exploitation" = "blue",
 
 answers_meta_final <- answers_meta_final%>%
   rename("nr" = ...1)%>%
-  dplyr::filter(Include == TRUE) # 4739 - 3360 = 1379
-# 1379 have been excluded from the analysis
+  dplyr::filter(Include == TRUE)%>%# 4739 - 3360 = 1379
+  dplyr::filter(!is.na(`Anthropogenic driver(s)`))%>%# 3360 - 1 = 1380
+  dplyr::filter(!is.na(`Precision_of_the driver(s)`))%>%#-2
+  dplyr::filter(!is.na(`Analyzed impact(s)`))%>% #-1
+  dplyr::filter(!is.na(`Nature of the study population`)) #3356
+# 1383 have been excluded from the analysis, 
+# because they were marked as irrelevant or missing important information
 
 
 # test how to best split up labels
@@ -211,7 +216,7 @@ ggplot(data = dat, aes(x = `Anthropogenic driver(s)`, y = n))+
         axis.ticks.x = element_blank())
 
 # Figure 3 Sankey diagrams for each main driver ----
-install.packages("networkD3")
+#install.packages("networkD3")
 library(networkD3)
 dat <- answers_meta_final%>%
   filter(year != 2021)%>%  
@@ -220,6 +225,13 @@ dat <- answers_meta_final%>%
   separate_longer_delim(`Precision_of_the driver(s)`, delim = "|||")%>%
   separate_longer_delim(`Analyzed impact(s)`, delim = "|||")%>%
   separate_longer_delim(`Nature of the study population`, delim = "|||")
+
+dat[dat$`Precision_of_the driver(s)` == "Other", ]$`Precision_of_the driver(s)` <- "Other_driver"  
+dat[dat$`Analyzed impact(s)` == "Other", ]$`Analyzed impact(s)` <- "Other_impact"
+dat[dat$`Nature of the study population` == "Other", ]$`Nature of the study population` <- "Other_population"
+
+unique(dat$`Precision_of_the driver(s)`) #issue that Fishing exploitation has in some case a white space at the beginning
+# -> trouble shoot at beginning of code, thus it works for all figures. 
 
 sankey_ploty <- vector(mode = "list", length = length(unique(dat$`Anthropogenic driver(s)`)))
 drivers <- unique(dat$`Anthropogenic driver(s)`)
