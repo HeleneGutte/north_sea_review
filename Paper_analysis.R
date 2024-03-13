@@ -23,7 +23,6 @@ answers_meta_final <- answers_meta_final%>%
 # 1383 have been excluded from the analysis, 
 # because they were marked as irrelevant or missing important information
 
-
 # test how to best split up labels
 # paper1 <- answers_meta_final%>%
 #   dplyr::filter(nr == 3 | nr == 4 |  nr == 6 | nr == 7 | nr == 8)%>%
@@ -104,6 +103,8 @@ dat <- answers_meta_final%>%
   add_row(year = 1969, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 20)%>%
   pivot_wider(names_from = `Anthropogenic driver(s)`, values_from = n, values_fill = 0)
 dat
+
+
 
 # absolute numbers
 ggplot(dat, aes(x = year))+
@@ -231,12 +232,18 @@ dat[dat$`Analyzed impact(s)` == "Other", ]$`Analyzed impact(s)` <- "Other_impact
 dat[dat$`Nature of the study population` == "Other", ]$`Nature of the study population` <- "Other_population"
 
 unique(dat$`Precision_of_the driver(s)`) #issue that Fishing exploitation has in some case a white space at the beginning
-# -> trouble shoot at beginning of code, thus it works for all figures. 
+#trim white space at beginning and end
+dat <- dat%>%
+  mutate(`Anthropogenic driver(s)` = str_trim(`Anthropogenic driver(s)`, "both"), 
+         `Precision_of_the driver(s)` = str_trim(`Precision_of_the driver(s)`, "both"),
+         `Analyzed impact(s)` = str_trim(`Analyzed impact(s)`, "both"),
+         `Nature of the study population` = str_trim(`Nature of the study population`, "both"))
+unique(dat$`Precision_of_the driver(s)`)
 
 sankey_ploty <- vector(mode = "list", length = length(unique(dat$`Anthropogenic driver(s)`)))
 drivers <- unique(dat$`Anthropogenic driver(s)`)
-drivers <- drivers[-7]
-for(i in 1:(length(unique(dat$`Anthropogenic driver(s)`))-1)){
+
+for(i in 1:(length(unique(dat$`Anthropogenic driver(s)`)))){
   temp <- dat%>%
     filter(`Anthropogenic driver(s)` == drivers[i])%>%
     select(`Precision_of_the driver(s)`, `Analyzed impact(s)`, `Nature of the study population`)%>%
@@ -266,3 +273,31 @@ sankey_ploty[[3]]
 sankey_ploty[[4]]
 sankey_ploty[[5]]
 sankey_ploty[[6]]
+
+# Figure SI ----
+dat <- answers_meta_final%>%
+  filter(year != 2021)%>%  
+  select(nr, `Precision_of_the driver(s)`, `Analyzed impact(s)`, 
+         `Nature of the study population`, `ICES_medium_location(s)`)%>%
+  separate_longer_delim(`Precision_of_the driver(s)`, delim = "|||")%>%
+  separate_longer_delim(`Analyzed impact(s)`, delim = "|||")%>%
+  separate_longer_delim(`Nature of the study population`, delim = "|||")%>%
+  separate_longer_delim(`ICES_medium_location(s)`, delim = "|||")
+
+SI_figures <- vector("list", length = (ncol(dat)-2))
+
+for(i in 1:(ncol(dat)-2)){
+  x <- sym(names(dat[i+1]))
+  temp <- dat%>%
+    select(nr, !!x, `ICES_medium_location(s)`)%>%
+    mutate(!!x := str_trim(!!x, "both"),
+           `ICES_medium_location(s)` = str_trim(`ICES_medium_location(s)`, "both"))%>%
+    group_by(!!x, `ICES_medium_location(s)`)%>%
+    count()
+  SI_figures[[i]]<- ggplot(temp, aes(x = !!x, y = n, fill = `ICES_medium_location(s)`))+
+    geom_col()+
+    scale_fill_brewer(palette = "Paired")+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  
+}
+SI_figures
