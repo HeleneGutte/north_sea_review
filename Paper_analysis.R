@@ -2,6 +2,7 @@
 
 # 1. packages and data ----
 library(mapplots)
+library(RColorBrewer)
 library(tidyverse)
 answers_meta_final <- read_csv("Data/answers_meta_final.csv")
 
@@ -243,6 +244,16 @@ unique(dat$`Precision_of_the driver(s)`)
 sankey_ploty <- vector(mode = "list", length = length(unique(dat$`Anthropogenic driver(s)`)))
 drivers <- unique(dat$`Anthropogenic driver(s)`)
 
+n <- length(unique(dat$`Analyzed impact(s)`))
+pal <- unlist(mapply(brewer.pal,12,'Set3'))
+pal2 <- unlist(mapply(brewer.pal,8,'Set2'))
+pal3 <- unlist(mapply(brewer.pal,6,'Set1'))
+pal<-rbind(pal,pal2, pal3)
+pal<-paste(shQuote(pal), collapse=", ")
+dom<-unique(unique(dat$`Analyzed impact(s)`))
+dom<-paste(shQuote(dom), collapse=", ")
+my_color <-paste0("d3.scaleOrdinal().domain([",dom,",'nodes']).range([",pal,",'grey'])")
+
 for(i in 1:(length(unique(dat$`Anthropogenic driver(s)`)))){
   temp <- dat%>%
     filter(`Anthropogenic driver(s)` == drivers[i])%>%
@@ -254,16 +265,30 @@ for(i in 1:(length(unique(dat$`Anthropogenic driver(s)`)))){
   
   links <- rbind(links, temp%>%
                       transmute(source = `Analyzed impact(s)`, target = `Nature of the study population`, value = n, linkgroup= `Analyzed impact(s)`))
+  
+  #sort links table by count of analyzed impact
+  links_sort <- links%>%
+    ungroup()%>%
+    select(`Analyzed impact(s)`, value)%>%
+    group_by(`Analyzed impact(s)`)%>%
+    mutate(nr = sum(value))%>%
+    select(`Analyzed impact(s)`, nr)%>%
+    distinct()%>%
+    arrange(desc(nr))
+  
+  links_ordered <- match(links$`Analyzed impact(s)`, links_sort$`Analyzed impact(s)`)
+  links_new <- links[order(links_ordered), ]
+    
   nodes <- data.frame(
-    name=c(as.character(links$source), as.character(links$target)) %>% 
+    name=c(as.character(links_new$source), as.character(links_new$target)) %>% 
       unique())
   nodes$group<-'nodes'
-  links$IDsource <- match(links$source, nodes$name)-1 
-  links$IDtarget <- match(links$target, nodes$name)-1
-  sankey_ploty[[i]] <- sankeyNetwork(Links = links, Nodes = nodes, Source = "IDsource", Target = "IDtarget", 
+  links_new$IDsource <- match(links_new$source, nodes$name)-1 
+  links_new$IDtarget <- match(links_new$target, nodes$name)-1
+  sankey_ploty[[i]] <- sankeyNetwork(Links = links_new, Nodes = nodes, Source = "IDsource", Target = "IDtarget", 
                      iterations = 0, Value = "value", NodeID = "name",
                      fontSize = 16, fontFamily = 'Ubuntu',
-                     #colourScale=my_color, 
+                     colourScale=my_color, 
                      LinkGroup="linkgroup", NodeGroup = "group")
   
 }
