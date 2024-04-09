@@ -1,0 +1,55 @@
+Meeting Notes
+
+9. April 2024 
+Alex, Johanna, Helene
+
+Allgemein: 
+  - theme_test() anwenden
+  - Für den Anhang eine Tabelle mit den möglichen Labels von precision of driver,
+    analyzed impact und study population
+  
+Figure 1: 
+  - Zeitserie und stacked bar plot kombinieren (A + B)
+  - Barplot korrigieren mit Gesamtanzahl der paper
+    -> Entweder Gesamtanzahl über die bars oder als zweite Achse 
+       in den Plot einzeichnen
+  - Reihenfolge der bars von groß nach klein (unten nach oben):
+    1. Pollution
+    2. Direct exploitation
+    3. Climate change
+    4. Sea use chage
+    5. Biological invasion
+    6. Global change
+  - Legende unter den Plot
+    
+Figure 2: 
+  - auch Map mit theme test
+  - Linien schwarz, in rectangles number der ICES area schreiben
+  - Legende unter den Plot
+  - not specified und whole north sea weiter nach rechts, untereinander
+  - Einheit Lat und Long? 
+  - Namen ohne Hyphen
+  
+Figure 3 (Sankeys):
+  - Farben über alle Sankeys gleich
+  - Labels rechts bzw. links von den Kästen anordnen
+  - Reihenfolge nach impact sortieren
+  - Pollution und Climate change fürs Paper, Rest für Appendix
+  - wenn Zeit ist interaktive Version
+  
+Figure 4: 
+  - Statt Torte: horizontaler barplot, jede Zeile ein driver. Neben die 
+    Zeile als ein Plot (also 4 bzw 5 Linien) die Zeitserie des organization levels. 
+    Gleiche Reihenfolge wie in Figure 1
+  - Levels in verschiedenen Abstufungen einer Farbe (individual hell -> ecosystem dunkel)
+  
+Supplementary figures: 
+  - im Text zu Figure 2 auf diese detailliertere Version verweisen. 
+  - Test neue Version wo Farbskala und x Achse getauscht sind, sodass
+    gleicher "Blickwinkel" verwendet wird wie in Figure 2
+    
+    
+  
+  
+
+
