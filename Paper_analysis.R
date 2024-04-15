@@ -76,7 +76,7 @@ write_csv(other_impacts, file = "Data/other_impacts.csv")
 write_csv(other_drivers, file = "Data/other_drivers.csv")
 write_csv(other_population, file = "Data/other_population.csv")
 
-# 4. Main drivers over time ----
+# Figure 1 Main drivers over time ----
 dat <- answers_meta_final%>%
   separate_rows(`Anthropogenic driver(s)`, sep = "\\|\\|\\|")%>%
   mutate(`Anthropogenic driver(s)` = recode(`Anthropogenic driver(s)`, "Biological_invasion" = "Biological invasion",
@@ -132,6 +132,7 @@ dat_relative <- dat%>%
 
 dat_relative[is.na(dat_relative)] <- 0
 
+
 ggplot(dat_relative, aes(x = year))+
   geom_line(aes(y = `Direct exploitation`, colour = "Direct exploitation"))+
   geom_line(aes(y = `Sea use change`, colour = "Sea use change"))+
@@ -146,11 +147,30 @@ ggplot(dat_relative, aes(x = year))+
 dat_relative_2 <- dat_relative%>%
   select(year, `Direct exploitation`:`Biological invasion`)%>%
   pivot_longer(!year, names_to = "Anthropogenic driver", values_to = "Proportion")
+dat_relative_2$`Anthropogenic driver` <- factor(dat_relative_2$`Anthropogenic driver`, levels = rev(c("Pollution", "Direct exploitation", 
+                                                                            "Climate change", "Sea use change", 
+                                                                            "Biological invasion", "Global change")))
 
-ggplot(dat_relative_2, aes(x = year, y = Proportion, fill = `Anthropogenic driver`))+
+bars_figure1 <- ggplot(dat_relative_2, aes(x = year, y = Proportion, fill = `Anthropogenic driver`))+
   geom_col()+
-  scale_fill_manual(values = my_colours)+
-  labs(x = "Year")
+  scale_fill_manual(values = my_colours, limits = rev(levels(dat_relative_2$`Anthropogenic driver`)))+
+  labs(x = "Year")+
+  ylim(0, 1.5)+
+  theme_test()+
+  theme(legend.position = "bottom")
+bars_figure1
+
+nr_papers_figure1 <- ggplot(dat_relative, aes(x = year, y = sum_of_papers))+
+  geom_line()+
+  labs(y = "nr of papers", x = "")+
+  theme_test()
+nr_papers_figure1
+
+gridExtra::grid.arrange(grobs = list(nr_papers_figure1, bars_figure1), nrow = 2, ncol = 1, 
+                        heights = c(1, 3))
+nr_papers_figure1_grob <- ggplotGrob(nr_papers_figure1)
+bars_figure1 + annotation_custom(grob = nr_papers_figure1_grob, 
+                                 xmin = 1942, xmax = 2024, ymin = 1, ymax = 1.5)
 
 # Figure 2 spatial distribution of main drivers ----
 dat <- answers_meta_final%>%
