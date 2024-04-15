@@ -244,15 +244,17 @@ unique(dat$`Precision_of_the driver(s)`)
 sankey_ploty <- vector(mode = "list", length = length(unique(dat$`Anthropogenic driver(s)`)))
 drivers <- unique(dat$`Anthropogenic driver(s)`)
 
-n <- length(unique(dat$`Analyzed impact(s)`))
-pal <- unlist(mapply(brewer.pal,12,'Set3'))
-pal2 <- unlist(mapply(brewer.pal,8,'Set2'))
-pal3 <- unlist(mapply(brewer.pal,6,'Set1'))
-pal<-rbind(pal,pal2, pal3)
+n <- length(unique(dat$`Nature of the study population`))
+pal <- unlist(mapply(brewer.pal,9,'Set1'))
+pal2 <- unlist(mapply(brewer.pal,5,'Set2'))
+pal3 <- unlist(mapply(brewer.pal,6,'Set3'))
+pal<-rbind(pal, pal2)
 pal<-paste(shQuote(pal), collapse=", ")
-dom<-unique(unique(dat$`Analyzed impact(s)`))
+dom<-unique(unique(dat$`Nature of the study population`))
 dom<-paste(shQuote(dom), collapse=", ")
 my_color <-paste0("d3.scaleOrdinal().domain([",dom,",'nodes']).range([",pal,",'grey'])")
+
+
 
 for(i in 1:(length(unique(dat$`Anthropogenic driver(s)`)))){
   temp <- dat%>%
@@ -288,8 +290,8 @@ for(i in 1:(length(unique(dat$`Anthropogenic driver(s)`)))){
   sankey_ploty[[i]] <- sankeyNetwork(Links = links_new, Nodes = nodes, Source = "IDsource", Target = "IDtarget", 
                      iterations = 0, Value = "value", NodeID = "name",
                      fontSize = 16, fontFamily = 'Ubuntu',
-                     colourScale=my_color, 
-                     LinkGroup="linkgroup", NodeGroup = "group")
+                     colourScale = my_color, 
+                     LinkGroup= "Nature of the study population", NodeGroup = "group")
   
 }
 sankey_ploty[[1]]
@@ -298,6 +300,7 @@ sankey_ploty[[3]]
 sankey_ploty[[4]]
 sankey_ploty[[5]]
 sankey_ploty[[6]]
+
 
 # Figure SI ----
 dat <- answers_meta_final%>%
@@ -326,3 +329,5 @@ for(i in 1:(ncol(dat)-2)){
   
 }
 SI_figures
+
+
