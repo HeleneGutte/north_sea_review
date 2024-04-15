@@ -159,63 +159,68 @@ dat <- answers_meta_final%>%
   separate_longer_delim(`Anthropogenic driver(s)`, delim = "|||")%>%
   separate_longer_delim(`ICES_medium_location(s)`, delim = "|||")%>%
   group_by(`ICES_medium_location(s)`, `Anthropogenic driver(s)`)%>%
-  count()
+  count()%>%
+  mutate(`Anthropogenic driver(s)` = recode(`Anthropogenic driver(s)`, "Biological_invasion" = "Biological invasion",
+                                                      "Climate_change" = "Climate change", "Direct_exploitation" = "Direct exploitation",
+                                                      "Global_change" = "Global change", "Sea_use_change" = "Sea use change"))
+  
 
 world <- map_data(("world"))
 worldmap <- ggplot(world, aes(x = long, y = lat))+
-  geom_polygon(mapping = aes(group = group), fill = "white", colour = "black")
+  geom_polygon(mapping = aes(group = group), fill = "gray90", colour = "black")
 NorthSea <- worldmap + coord_cartesian(xlim = c(-4, 12), ylim = c(50, 62))+
   scale_x_continuous(breaks = seq(-4, 12, by = 2))+
   scale_y_continuous(breaks = seq(50, 62, by = 1))+
-  labs(x = "Longitude", y = "Latitude")
+  labs(x = "Longitude", y = "Latitude")+
+  theme_test()
 NorthSea  
 
-NorthSea_icesareas <- ggplot() +geom_segment(aes(x = -4, xend = 4, y = 62, yend = 62))+
-  geom_segment(aes(x = -4, xend = 4, y = 62, yend = 62))+
-  geom_segment(aes(x = -4, xend = -2, y = 59.5, yend = 59.5))+
-  geom_segment(aes(x = -2, xend = 0, y = 59, yend = 59))+
-  geom_segment(aes(x = 4, xend = 5, y = 58.5, yend = 58.5))+
-  geom_segment(aes(x = 2, xend = 6, y = 58, yend = 58))+
-  geom_segment(aes(x = 0, xend = 2, y = 57.5, yend = 57.5))+
-  geom_segment(aes(x = 6, xend = 8, y = 57.5, yend = 57.5))+
-  geom_segment(aes(x = 8, xend = 9, y = 57, yend = 57))+
-  geom_segment(aes(x = -4, xend = 0, y = 56, yend = 56))+
-  geom_segment(aes(x = 0, xend = 1, y = 55.5, yend = 55.5))+
-  geom_segment(aes(x = 3, xend = 9, y = 55.5, yend = 55.5))+
-  geom_segment(aes(x = 1, xend = 3, y = 55, yend = 55))+
-  geom_segment(aes(x = 1, xend = 3, y = 54, yend = 54))+
-  geom_segment(aes(x = 0, xend = 1, y = 53.5, yend = 53.5))+
-  geom_segment(aes(x = 2, xend = 3, y = 52, yend = 52))+
-  geom_segment(aes(x = 1, xend = 2, y = 51, yend = 51))+
-  #now vertical lines
-  geom_segment(aes(x = -4, xend = -4, y = 62, yend = 57.5))+
-  geom_segment(aes(x = -2, xend = -2, y = 59.5, yend = 59))+
-  geom_segment(aes(x = 0, xend = 0, y = 59, yend = 55.5))+
-  geom_segment(aes(x = 1, xend = 1, y = 55.5, yend = 55))+
-  geom_segment(aes(x = 1, xend = 1, y = 54, yend = 53.5))+
-  geom_segment(aes(x = 2, xend = 2, y = 52, yend = 51))+
-  geom_segment(aes(x = 2, xend = 2, y = 55, yend = 54))+
-  geom_segment(aes(x = 2, xend = 2, y = 58, yend = 57.5))+
-  geom_segment(aes(x = 3, xend = 3, y = 54, yend = 52))+
-  geom_segment(aes(x = 3, xend = 3, y = 55.5, yend = 55))+
-  geom_segment(aes(x = 4, xend = 4, y = 62, yend = 58.5))+
-  geom_segment(aes(x = 5, xend = 5, y = 58.5, yend = 55.5))+
-  geom_segment(aes(x = 6, xend = 6, y = 58, yend = 57.5))+
-  geom_segment(aes(x = 8, xend = 8, y = 58.5, yend = 57))
-  
-NorthSea_icesareas
-
-my_colours <- c("Climate_change" = "orange2", "Direct_exploitation" = "blue", 
-                "Biological_invasion" = "turquoise", "Pollution" = "purple", "Sea_use_change" = "gold", 
-                "Global_change" = "darkgreen")
+# NorthSea_icesareas <- ggplot() +geom_segment(aes(x = -4, xend = 4, y = 62, yend = 62))+
+#   geom_segment(aes(x = -4, xend = 4, y = 62, yend = 62))+
+#   geom_segment(aes(x = -4, xend = -2, y = 59.5, yend = 59.5))+
+#   geom_segment(aes(x = -2, xend = 0, y = 59, yend = 59))+
+#   geom_segment(aes(x = 4, xend = 5, y = 58.5, yend = 58.5))+
+#   geom_segment(aes(x = 2, xend = 6, y = 58, yend = 58))+
+#   geom_segment(aes(x = 0, xend = 2, y = 57.5, yend = 57.5))+
+#   geom_segment(aes(x = 6, xend = 8, y = 57.5, yend = 57.5))+
+#   geom_segment(aes(x = 8, xend = 9, y = 57, yend = 57))+
+#   geom_segment(aes(x = -4, xend = 0, y = 56, yend = 56))+
+#   geom_segment(aes(x = 0, xend = 1, y = 55.5, yend = 55.5))+
+#   geom_segment(aes(x = 3, xend = 9, y = 55.5, yend = 55.5))+
+#   geom_segment(aes(x = 1, xend = 3, y = 55, yend = 55))+
+#   geom_segment(aes(x = 1, xend = 3, y = 54, yend = 54))+
+#   geom_segment(aes(x = 0, xend = 1, y = 53.5, yend = 53.5))+
+#   geom_segment(aes(x = 2, xend = 3, y = 52, yend = 52))+
+#   geom_segment(aes(x = 1, xend = 2, y = 51, yend = 51))+
+#   #now vertical lines
+#   geom_segment(aes(x = -4, xend = -4, y = 62, yend = 57.5))+
+#   geom_segment(aes(x = -2, xend = -2, y = 59.5, yend = 59))+
+#   geom_segment(aes(x = 0, xend = 0, y = 59, yend = 55.5))+
+#   geom_segment(aes(x = 1, xend = 1, y = 55.5, yend = 55))+
+#   geom_segment(aes(x = 1, xend = 1, y = 54, yend = 53.5))+
+#   geom_segment(aes(x = 2, xend = 2, y = 52, yend = 51))+
+#   geom_segment(aes(x = 2, xend = 2, y = 55, yend = 54))+
+#   geom_segment(aes(x = 2, xend = 2, y = 58, yend = 57.5))+
+#   geom_segment(aes(x = 3, xend = 3, y = 54, yend = 52))+
+#   geom_segment(aes(x = 3, xend = 3, y = 55.5, yend = 55))+
+#   geom_segment(aes(x = 4, xend = 4, y = 62, yend = 58.5))+
+#   geom_segment(aes(x = 5, xend = 5, y = 58.5, yend = 55.5))+
+#   geom_segment(aes(x = 6, xend = 6, y = 58, yend = 57.5))+
+#   geom_segment(aes(x = 8, xend = 8, y = 58.5, yend = 57))
+#   
+# NorthSea_icesareas
 
 ggplot(data = dat, aes(x = `Anthropogenic driver(s)`, y = n))+
   geom_col(aes(fill = `Anthropogenic driver(s)`))+
   scale_fill_manual(name = "Anthropogenic driver", values = my_colours)+
-  facet_wrap(.~`ICES_medium_location(s)`)+
+  facet_wrap(.~`ICES_medium_location(s)`, scales = "free")+
+  scale_y_continuous(limits=c(0, 1000))+
   labs(x = "")+
+  theme_test()+
   theme(axis.text.x = element_blank(), 
-        axis.ticks.x = element_blank())
+        axis.ticks.x = element_blank(),
+        legend.position = "bottom", 
+        strip.text = element_blank())
 
 # Figure 3 Sankey diagrams for each main driver ----
 #install.packages("networkD3")
