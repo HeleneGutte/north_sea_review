@@ -356,3 +356,107 @@ for(i in 1:(ncol(dat)-2)){
 SI_figures
 
 
+# Figure SI per area ----
+#1. precision of driver ----
+
+dat_p_d <- answers_meta_final%>%
+  filter(year != 2021)%>%  
+  select(nr, `Precision_of_the driver(s)`, `ICES_medium_location(s)`)%>%
+  separate_longer_delim(`Precision_of_the driver(s)`, delim = "|||")%>%
+  separate_longer_delim(`ICES_medium_location(s)`, delim = "|||") %>% 
+  mutate(`Precision_of_the driver(s)` = recode(`Precision_of_the driver(s)`, 
+                                               "Non_native_species_introduction" = "Non native species introduction",
+                                               "Chemical_hazardous_substances" = "Chemical hazardous substances", 
+                                               "Medical_hormone_products" = "Medical hormone products",
+                                               "Nutrient_input_N_P" = "Nutrient input N P",
+                                               "Plastic_litter" = "Plastic litter",
+                                               "Other_litter" = "Other litter", 
+                                               "Other"= "Other",
+                                               "Other_physical_parameter" = "Other physical parameter",
+                                               "Oils_hydrocarbons_related" ="Oils hydrocarbons related",
+                                               "Gas_stockage_leaking" = "Gas stockage leaking",
+                                               "Temperature"="Temperature",
+                                               "Sea_level_rise"= "Sea level rise",
+                                               "Fishing_incidental_or_bycatch" = "Fishing incidental or bycatch",
+                                               "Fishing_exploitation" = "Fishing exploitation",
+                                               "Metal_substances" = "Metal substances",
+                                               " Fishing_exploitation"= "Fishing exploitation",
+                                               "Civil_engineering_works"= "Civil engineering works",
+                                               "Destructive_fisheries_seabed"= "Destructive fisheries seabed", 
+                                               "Radioactive_substances"= "Radioactive substances", 
+                                               "Aquaculture_related"= "Aquaculture related",
+                                               "Coastal_development" = "Coastal development",
+                                               "Collision_shipping"= "Collision shipping",
+                                               "Salinity"= "Salinity",
+                                               "pH"="pH", 
+                                               "Mining"  = "Mining", 
+                                               "Global_change"= "Global change",
+                                               "Other_fishing"= "Other fishing",
+                                               "Oxygen"= "Oxygen",
+                                               "Pathogens_from_land_based_sources"= "Pathogens from land based sources",
+                                               "Not_specified"="Not specified",
+                                               "Fishing_IUU"=    "Fishing IUU" )) %>% 
+  group_by(`ICES_medium_location(s)`, `Precision_of_the driver(s)`)%>%
+  count()
+
+ggplot(dat_p_d, aes(x = `ICES_medium_location(s)`, y = n, fill = `Precision_of_the driver(s)`))+
+  geom_col()+
+  #scale_fill_brewer()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x = "ICES medium locations", y = "number of papers")+
+  theme_test() +
+  theme(legend.position="bottom")+ 
+  guides(fill=guide_legend(title="Precision of driver(s)"))
+
+
+#2.analyzed impacts ----
+dat_a_i <- answers_meta_final%>%
+  filter(year != 2021)%>%  
+  select(nr, `Analyzed impact(s)`, `ICES_medium_location(s)`)%>%
+  separate_longer_delim(`Analyzed impact(s)`, delim = "|||")%>%
+  separate_longer_delim(`ICES_medium_location(s)`, delim = "|||") %>% 
+  mutate(`Analyzed impact(s)` = recode(`Analyzed impact(s)`, 
+                                       "Change_biomass_abundance" ="Change biomass abundance","Change_distribution"="Change distribution",
+                                       "Change_chemical_water_properties"="Change chemical water properties", 
+                                       "Quantification_driver"= "Quantification driver","Change_physical_water_properties"  = "Change physical water properties",  "Other"="Other",                          
+                                       "Change_diversity"="Change diversity","Change_genetic"="Change diversity",   "Change_trophic_functioning"="Change trophic functioning",   
+                                       "Change_demographic_structure"="Change demographic structure","Change_chemical_sediment_properties" ="Change chemical sediment properties", "Degradation_habitat_loss"="Degradation habitat loss",    
+                                       "Change_extreme_events"="Change extreme events","Change_life_history_traits"="Change life history traits", "Change_contamination_level"="Change contamination level",
+                                       "Coastal_erosion_sedimentation"="Coastal erosion sedimentation", "Change_physical_sediment_properties" = "Change physical sediment properties","Multiple"="Multiple",        
+                                       "Plastic_ingestion"="Plastic ingestion","Change_physiology"="Change physiology", "Bioaccumulation_TL"="Bioaccumulation TL",           
+                                       "Change_phenology"="Change phenology","Change_biogeochemical_fluxes"="Change biogeochemical fluxes", "Incidental_mortality"="Incidental mortality",      
+                                       "Change_Harmful_algal_blooms"="Change Harmful algal blooms","Change_toxins" ="Change toxins")) %>% 
+  group_by(`ICES_medium_location(s)`, `Analyzed impact(s)`)%>%
+  count()
+
+ggplot(dat_a_i, aes(x = `ICES_medium_location(s)`, y = n, fill = `Analyzed impact(s)`))+
+  geom_col()+
+  #scale_fill_brewer()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x = "ICES medium locations", y = "number of papers")+
+  theme_test() +
+  theme(legend.position="bottom")+ 
+  guides(fill=guide_legend(title="Analyzed impact(s)"))
+
+#3.nature of study population ----
+dat_study_pop <- answers_meta_final%>%
+  filter(year != 2021)%>%  
+  select(nr, `Nature of the study population`, `ICES_medium_location(s)`)%>%
+  separate_longer_delim(`Nature of the study population`, delim = "|||")%>%
+  separate_longer_delim(`ICES_medium_location(s)`, delim = "|||") %>% 
+  mutate(`Nature of the study population` = recode(`Nature of the study population`, 
+                                                   "Benthos" ="Benthos","Chemical"="Chemical","Macropthytes"="Macropthytes","Phytoplankton"="Macropthytes",
+                                                   "Physical"="Physical","Bacteria_other_microorganisms"="Bacteria other microorganisms", "Seabirds"="Seabirds","Fish"="Fish",
+                                                   "Zooplankton"="Zooplankton","Marine_mammals"="Marine mammals","All"="All","Other"="Other",                       
+                                                   "Not_applicable"="Not applicable","Cephalopods"="Cephalopods")) %>% 
+  group_by(`ICES_medium_location(s)`, `Nature of the study population`)%>%
+  count()
+
+ggplot(dat_study_pop, aes(x = `ICES_medium_location(s)`, y = n, fill = `Nature of the study population`))+
+  geom_col()+
+  #scale_fill_brewer()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x = "ICES medium locations", y = "number of papers")+
+  theme_test() +
+  theme(legend.position="bottom")+ 
+  guides(fill=guide_legend(title="Nature of the study population"))
