@@ -141,7 +141,22 @@ ggplot (dat_all) +
   geom_line(aes(year, n, col =col))+
   facet_wrap(~`Anthropogenic driver(s)`+ `Organizational level`)+
   labs(x="Year", y="nr of papers")+
-  theme_test()
+  theme_test()+
+  theme(legend.position="none")
+
+## 1. Pollution
+dat_1$`Organizational level` <- factor(dat_1$`Organizational level`, levels = c("Ecosystem","Community","Population","Individual","Not_applicable"))
+
+p1 <- ggplot(dat_1)+
+  geom_line(aes(x=year, y =n,  col = `Organizational level`))+
+  scale_fill_manual(values = colours)
+p1
+
+# 2. Direct exploitation
+# 3. Climate change
+# 4. Sea use chage
+# 5. Biological invasion
+# 6. Global change
 
 #barplot----
 
