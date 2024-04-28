@@ -326,6 +326,9 @@ sankey_ploty[[4]]
 sankey_ploty[[5]]
 sankey_ploty[[6]]
 
+#Figure 4 Methods over time ----
+
+#Figure 5 Methods per driver ----
 
 # Figure SI ----
 dat <- answers_meta_final%>%
@@ -350,11 +353,12 @@ for(i in 1:(ncol(dat)-2)){
   SI_figures[[i]]<- ggplot(temp, aes(x = !!x, y = n, fill = `ICES_medium_location(s)`))+
     geom_col()+
     scale_fill_brewer(palette = "Paired")+
-    theme(axis.text.x = element_text(angle = 90, hjust = 1))
-  
+    theme_test()+
+    theme(axis.text.x = element_text(angle = 90, hjust = 1),
+          legend.position = "bottom")+
+    labs(y="Number of papers")
 }
 SI_figures
-
 
 # Figure SI per area ----
 #1. precision of driver ----
@@ -396,16 +400,25 @@ dat_p_d <- answers_meta_final%>%
                                                "Pathogens_from_land_based_sources"= "Pathogens from land based sources",
                                                "Not_specified"="Not specified",
                                                "Fishing_IUU"=    "Fishing IUU" )) %>% 
+  mutate(`ICES_medium_location(s)` = recode(`ICES_medium_location(s)`,
+                                            "1" ="1", "2"="2","3"="3","4"="4",
+                                            "5"="5","6"="6","7"="7","Norvegian_coast" = "Norwegian coast",
+                                            "Not_specified" = "Not specified", "Whole_North_Sea" = "Whole North Sea")) %>% 
   group_by(`ICES_medium_location(s)`, `Precision_of_the driver(s)`)%>%
   count()
 
-ggplot(dat_p_d, aes(x = `ICES_medium_location(s)`, y = n, fill = `Precision_of_the driver(s)`))+
+
+dat_p_d1 <- dat_p_d %>% 
+  group_by(`Precision_of_the driver(s)`) %>% mutate(sum_p = sum(n))
+
+ggplot(dat_p_d1, mapping =aes(x = reorder(`Precision_of_the driver(s)`,-sum_p), y = n, fill = `ICES_medium_location(s)`))+
   geom_col()+
-  #scale_fill_brewer()+
+  scale_fill_brewer(palette = "Paired")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  labs(x = "ICES medium locations", y = "number of papers")+
+  labs(x = "ICES medium locations", y = "Number of papers")+
   theme_test() +
-  theme(legend.position="bottom")+ 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        legend.position = "bottom")+ 
   guides(fill=guide_legend(title="Precision of driver(s)"))
 
 
@@ -426,16 +439,24 @@ dat_a_i <- answers_meta_final%>%
                                        "Plastic_ingestion"="Plastic ingestion","Change_physiology"="Change physiology", "Bioaccumulation_TL"="Bioaccumulation TL",           
                                        "Change_phenology"="Change phenology","Change_biogeochemical_fluxes"="Change biogeochemical fluxes", "Incidental_mortality"="Incidental mortality",      
                                        "Change_Harmful_algal_blooms"="Change Harmful algal blooms","Change_toxins" ="Change toxins")) %>% 
+  mutate(`ICES_medium_location(s)` = recode(`ICES_medium_location(s)`,
+                                            "1" ="1", "2"="2","3"="3","4"="4",
+                                            "5"="5","6"="6","7"="7","Norvegian_coast" = "Norwegian coast",
+                                            "Not_specified" = "Not specified", "Whole_North_Sea" = "Whole North Sea")) %>% 
   group_by(`ICES_medium_location(s)`, `Analyzed impact(s)`)%>%
   count()
 
-ggplot(dat_a_i, aes(x = `ICES_medium_location(s)`, y = n, fill = `Analyzed impact(s)`))+
+dat_a_i1 <- dat_a_i %>% 
+  group_by(`Analyzed impact(s)`) %>% mutate(sum_p = sum(n))
+
+ggplot(dat_a_i1, mapping =aes(x = reorder(`Analyzed impact(s)`,-sum_p), y = n, fill = `ICES_medium_location(s)`))+
   geom_col()+
-  #scale_fill_brewer()+
+  scale_fill_brewer(palette = "Paired")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  labs(x = "ICES medium locations", y = "number of papers")+
+  labs(x = "ICES medium locations", y = "Number of papers")+
   theme_test() +
-  theme(legend.position="bottom")+ 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        legend.position = "bottom")+ 
   guides(fill=guide_legend(title="Analyzed impact(s)"))
 
 #3.nature of study population ----
@@ -449,14 +470,22 @@ dat_study_pop <- answers_meta_final%>%
                                                    "Physical"="Physical","Bacteria_other_microorganisms"="Bacteria other microorganisms", "Seabirds"="Seabirds","Fish"="Fish",
                                                    "Zooplankton"="Zooplankton","Marine_mammals"="Marine mammals","All"="All","Other"="Other",                       
                                                    "Not_applicable"="Not applicable","Cephalopods"="Cephalopods")) %>% 
+  mutate(`ICES_medium_location(s)` = recode(`ICES_medium_location(s)`,
+                                            "1" ="1", "2"="2","3"="3","4"="4",
+                                            "5"="5","6"="6","7"="7","Norvegian_coast" = "Norwegian coast",
+                                            "Not_specified" = "Not specified", "Whole_North_Sea" = "Whole North Sea")) %>% 
   group_by(`ICES_medium_location(s)`, `Nature of the study population`)%>%
   count()
 
-ggplot(dat_study_pop, aes(x = `ICES_medium_location(s)`, y = n, fill = `Nature of the study population`))+
+dat_study_pop1 <- dat_study_pop %>% 
+  group_by(`Nature of the study population`) %>% mutate(sum_p = sum(n))
+
+ggplot(dat_study_pop1, mapping =aes(x = reorder(`Nature of the study population`,-sum_p), y = n, fill = `ICES_medium_location(s)`))+
   geom_col()+
-  #scale_fill_brewer()+
+  scale_fill_brewer(palette = "Paired")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  labs(x = "ICES medium locations", y = "number of papers")+
+  labs(x = "ICES medium locations", y = "Number of papers")+
   theme_test() +
-  theme(legend.position="bottom")+ 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        legend.position = "bottom")+ 
   guides(fill=guide_legend(title="Nature of the study population"))
