@@ -476,15 +476,17 @@ ggplot(dat)+
 # relative contributions
 dat_relative <- dat%>%
   group_by(year)%>%
-  mutate("sum_of_papers" = sum(c(`Field observations measurement`, `Modelling`, `Experiment`, `Review`, `NA`)))%>%
+  mutate("sum_of_papers" = sum(c(`Field observations measurement`, `Modelling`, `Experiment`, `Review`,`Meta analysis` ,`NA`)))%>%
   mutate("Field observations measurement" = `Field observations measurement`/sum_of_papers, 
          "Modelling" = `Modelling`/sum_of_papers,
          "Experiment" = `Experiment`/sum_of_papers,
          "Review" = `Review`/sum_of_papers,
+         "Meta analysis" = `Meta analysis`/sum_of_papers,
          "NA" = `NA`/sum_of_papers) 
 
 
 dat_relative[is.na(dat_relative)] <- 0
+
 
 # as stacked barplot
 dat_relative_2 <- dat_relative%>%
@@ -492,8 +494,27 @@ dat_relative_2 <- dat_relative%>%
   pivot_longer(!year, names_to = "Main_methodology", values_to = "Proportion")
 dat_relative_2$`Main_methodology` <- factor(dat_relative_2$`Main_methodology`, levels = rev(c("Field observations measurement", "Experiment","Modelling","Meta analysis","Review","NA")))
 
+#add colors 
+my_colours <- c("Field observations measurement" = "tomato", "Experiment" = "darkseagreen1", 
+                "Meta analysis" = "lightblue1", "Modelling" = "lightsalmon", "Review" = "plum", 
+                "NA" = "grey"
+)
+
+dat_relative_2$Main_methodology <- factor(dat_relative_2$Main_methodology, levels = c("Field observations measurement","Experiment","Meta analysis","Modelling","Review","NA"))
+
+
+
+ggplot(dat_relative_2)+
+  geom_bar(aes(x=year,
+               y = Proportion, group=`Main_methodology`), 
+           stat="identity", fill = colours)+
+  labs(x="Anthropogenic driver", y = "Number of papers")+
+  theme_test()+
+  theme(legend.position = "bottom")
+
 bars_figure1 <- ggplot(dat_relative_2, aes(x = year, y = Proportion, fill = `Main_methodology`))+
   geom_col()+
+  scale_fill_manual(name = "Main_methodology", values = c(my_colours))+
   #scale_fill_brewer(palette = "Paired")+
   labs(x = "Year")+
   ylim(0, 1)+
@@ -512,6 +533,37 @@ gridExtra::grid.arrange(grobs = list(nr_papers_figure1, bars_figure1), nrow = 2,
                         heights = c(1, 3))
 
 #Figure 6 Methods per driver ----
+dat_m <- answers_meta_final%>%
+  filter(year != 2021)%>%  
+  select(nr, `Anthropogenic driver(s)`,`Main_methodology`)%>%
+  separate_longer_delim(`Anthropogenic driver(s)`, delim = "|||")%>%
+  separate_longer_delim(`Main_methodology`, delim = "|||") %>% 
+  mutate(`Anthropogenic driver(s)` = recode(`Anthropogenic driver(s)`, "Biological_invasion" = "Biological invasion",
+                                         "Climate_change" = "Climate change", "Direct_exploitation" = "Direct exploitation",
+                                         "Global_change" = "Global change", "Sea_use_change" = "Sea use change")) %>% 
+  
+  mutate(`Main_methodology` = recode(`Main_methodology`, "NA"="NA", "Field_observations_measurement"="Field observations measurement",
+                                     "Modelling"="Modelling", "Experiment"="Experiment","Review"="Review", "Meta_analysis"="Meta analysis"))%>%
+  group_by(`Anthropogenic driver(s)`,`Main_methodology` )%>%
+  count()
+
+
+dat_m1 <- dat_m %>% 
+  group_by(`Anthropogenic driver(s)`) %>% mutate(sum_p = sum(n))
+
+#add colors
+
+
+ggplot(dat_m1, mapping =aes(x = reorder(`Anthropogenic driver(s)`,-sum_p), y = n, fill = `Main_methodology`))+
+  geom_col()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  labs(x = "", y = "Number of papers")+
+  theme_test() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        legend.position = "bottom")+ 
+  guides(fill=guide_legend(title="Main methodoloy"))
+
+
 
 # Figure SI ----
 # Datensatz zu groß durch das selecten von allen columns. 
@@ -545,7 +597,6 @@ gridExtra::grid.arrange(grobs = list(nr_papers_figure1, bars_figure1), nrow = 2,
 # }
 # SI_figures
 
-# Figure SI per area ----
 #1. precision of driver ----
 dat_p_d <- answers_meta_final%>%
   filter(year != 2021)%>%  
