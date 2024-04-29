@@ -71,10 +71,10 @@ other_population <- paper1%>%
   arrange(desc(n))
 other_population
 
-write_csv(paper1, file = "Data/papers_with_other.csv")
-write_csv(other_impacts, file = "Data/other_impacts.csv")
-write_csv(other_drivers, file = "Data/other_drivers.csv")
-write_csv(other_population, file = "Data/other_population.csv")
+# write_csv(paper1, file = "Data/papers_with_other.csv")
+# write_csv(other_impacts, file = "Data/other_impacts.csv")
+# write_csv(other_drivers, file = "Data/other_drivers.csv")
+# write_csv(other_population, file = "Data/other_population.csv")
 
 # Figure 1 Main drivers over time ----
 dat <- answers_meta_final%>%
@@ -331,41 +331,42 @@ sankey_ploty[[6]]
 #Figure 5 Methods per driver ----
 
 # Figure SI ----
-dat <- answers_meta_final%>%
-  filter(year != 2021)%>%  
-  select(nr, `Precision_of_the driver(s)`, `Analyzed impact(s)`, 
-         `Nature of the study population`, `ICES_medium_location(s)`)%>%
-  separate_longer_delim(`Precision_of_the driver(s)`, delim = "|||")%>%
-  separate_longer_delim(`Analyzed impact(s)`, delim = "|||")%>%
-  separate_longer_delim(`Nature of the study population`, delim = "|||")%>%
-  separate_longer_delim(`ICES_medium_location(s)`, delim = "|||")
-
-SI_figures <- vector("list", length = (ncol(dat)-2))
-
-for(i in 1:(ncol(dat)-2)){
-  x <- sym(names(dat[i+1]))
-  temp <- dat%>%
-    select(nr, !!x, `ICES_medium_location(s)`)%>%
-    mutate(!!x := str_trim(!!x, "both"),
-           `ICES_medium_location(s)` = str_trim(`ICES_medium_location(s)`, "both"))%>%
-    group_by(!!x, `ICES_medium_location(s)`)%>%
-    count()
-  SI_figures[[i]]<- ggplot(temp, aes(x = !!x, y = n, fill = `ICES_medium_location(s)`))+
-    geom_col()+
-    scale_fill_brewer(palette = "Paired")+
-    theme_test()+
-    theme(axis.text.x = element_text(angle = 90, hjust = 1),
-          legend.position = "bottom")+
-    labs(y="Number of papers")
-}
-SI_figures
+# Datensatz zu groß durch das selecten von allen columns. 
+# Daher müsste das mit in die Schleife. 
+# dat <- answers_meta_final%>%
+#   filter(year != 2021)%>%  
+#   select(nr, `Precision_of_the driver(s)`, `Analyzed impact(s)`, 
+#          `Nature of the study population`, `ICES_medium_location(s)`)%>%
+#   separate_longer_delim(`Precision_of_the driver(s)`, delim = "|||")%>%
+#   separate_longer_delim(`Analyzed impact(s)`, delim = "|||")%>%
+#   separate_longer_delim(`Nature of the study population`, delim = "|||")%>%
+#   separate_longer_delim(`ICES_medium_location(s)`, delim = "|||")
+# 
+# SI_figures <- vector("list", length = (ncol(dat)-2))
+# 
+# for(i in 1:(ncol(dat)-2)){
+#   x <- sym(names(dat[i+1]))
+#   temp <- dat%>%
+#     select(nr, !!x, `ICES_medium_location(s)`)%>%
+#     mutate(!!x := str_trim(!!x, "both"),
+#            `ICES_medium_location(s)` = str_trim(`ICES_medium_location(s)`, "both"))%>%
+#     group_by(!!x, `ICES_medium_location(s)`)%>%
+#     count()
+#   SI_figures[[i]]<- ggplot(temp, aes(x = !!x, y = n, fill = `ICES_medium_location(s)`))+
+#     geom_col()+
+#     scale_fill_brewer(palette = "Paired")+
+#     theme_test()+
+#     theme(axis.text.x = element_text(angle = 90, hjust = 1),
+#           legend.position = "bottom")+
+#     labs(y="Number of papers")
+# }
+# SI_figures
 
 # Figure SI per area ----
 #1. precision of driver ----
-
 dat_p_d <- answers_meta_final%>%
   filter(year != 2021)%>%  
-  select(nr, `Precision_of_the driver(s)`, `ICES_medium_location(s)`)%>%
+  select(nr, `Precision_of_the driver(s)`, `ICES_medium_location(s)`, `Analyzed impact(s)`, `Nature of the study population`)%>%
   separate_longer_delim(`Precision_of_the driver(s)`, delim = "|||")%>%
   separate_longer_delim(`ICES_medium_location(s)`, delim = "|||") %>% 
   mutate(`Precision_of_the driver(s)` = recode(`Precision_of_the driver(s)`, 
@@ -404,7 +405,7 @@ dat_p_d <- answers_meta_final%>%
                                             "1" ="1", "2"="2","3"="3","4"="4",
                                             "5"="5","6"="6","7"="7","Norvegian_coast" = "Norwegian coast",
                                             "Not_specified" = "Not specified", "Whole_North_Sea" = "Whole North Sea")) %>% 
-  group_by(`ICES_medium_location(s)`, `Precision_of_the driver(s)`)%>%
+  group_by(`Precision_of_the driver(s)`,`ICES_medium_location(s)` )%>%
   count()
 
 
@@ -415,11 +416,11 @@ ggplot(dat_p_d1, mapping =aes(x = reorder(`Precision_of_the driver(s)`,-sum_p), 
   geom_col()+
   scale_fill_brewer(palette = "Paired")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  labs(x = "ICES medium locations", y = "Number of papers")+
+  labs(x = "", y = "Number of papers")+
   theme_test() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
         legend.position = "bottom")+ 
-  guides(fill=guide_legend(title="Precision of driver(s)"))
+  guides(fill=guide_legend(title="ICES medium locations"))
 
 
 #2.analyzed impacts ----
@@ -443,7 +444,7 @@ dat_a_i <- answers_meta_final%>%
                                             "1" ="1", "2"="2","3"="3","4"="4",
                                             "5"="5","6"="6","7"="7","Norvegian_coast" = "Norwegian coast",
                                             "Not_specified" = "Not specified", "Whole_North_Sea" = "Whole North Sea")) %>% 
-  group_by(`ICES_medium_location(s)`, `Analyzed impact(s)`)%>%
+  group_by( `Analyzed impact(s)`,`ICES_medium_location(s)`)%>%
   count()
 
 dat_a_i1 <- dat_a_i %>% 
@@ -453,11 +454,11 @@ ggplot(dat_a_i1, mapping =aes(x = reorder(`Analyzed impact(s)`,-sum_p), y = n, f
   geom_col()+
   scale_fill_brewer(palette = "Paired")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  labs(x = "ICES medium locations", y = "Number of papers")+
+  labs(x = "", y = "Number of papers")+
   theme_test() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
         legend.position = "bottom")+ 
-  guides(fill=guide_legend(title="Analyzed impact(s)"))
+  guides(fill=guide_legend(title="ICES medium locations"))
 
 #3.nature of study population ----
 dat_study_pop <- answers_meta_final%>%
@@ -474,18 +475,18 @@ dat_study_pop <- answers_meta_final%>%
                                             "1" ="1", "2"="2","3"="3","4"="4",
                                             "5"="5","6"="6","7"="7","Norvegian_coast" = "Norwegian coast",
                                             "Not_specified" = "Not specified", "Whole_North_Sea" = "Whole North Sea")) %>% 
-  group_by(`ICES_medium_location(s)`, `Nature of the study population`)%>%
+  group_by( `Nature of the study population`,`ICES_medium_location(s)`)%>%
   count()
 
 dat_study_pop1 <- dat_study_pop %>% 
-  group_by(`Nature of the study population`) %>% mutate(sum_p = sum(n))
+  group_by(`Nature of the study population`) %>% mutate(sum_p = sum(n)) 
 
 ggplot(dat_study_pop1, mapping =aes(x = reorder(`Nature of the study population`,-sum_p), y = n, fill = `ICES_medium_location(s)`))+
   geom_col()+
   scale_fill_brewer(palette = "Paired")+
   theme(axis.text.x = element_text(angle = 90, hjust = 1))+
-  labs(x = "ICES medium locations", y = "Number of papers")+
+  labs(x = "", y = "Number of papers")+
   theme_test() +
   theme(axis.text.x = element_text(angle = 90, hjust = 1),
         legend.position = "bottom")+ 
-  guides(fill=guide_legend(title="Nature of the study population"))
+  guides(fill=guide_legend(title="ICES medium locations"))
