@@ -155,14 +155,14 @@ bars_figure1 <- ggplot(dat_relative_2, aes(x = year, y = Proportion, fill = `Ant
   geom_col()+
   scale_fill_manual(values = my_colours, limits = rev(levels(dat_relative_2$`Anthropogenic driver`)))+
   labs(x = "Year")+
-  ylim(0, 1.5)+
+  ylim(0, 1)+
   theme_test()+
   theme(legend.position = "bottom")
 bars_figure1
 
 nr_papers_figure1 <- ggplot(dat_relative, aes(x = year, y = sum_of_papers))+
   geom_line()+
-  labs(y = "nr of papers", x = "")+
+  labs(y = "Nr of papers", x = "")+
   theme_test()
 nr_papers_figure1
 
@@ -326,9 +326,192 @@ sankey_ploty[[4]]
 sankey_ploty[[5]]
 sankey_ploty[[6]]
 
-#Figure 4 Methods over time ----
+#Figure 4 Driver in nr of papers----
+dat <- answers_meta_final%>%
+  filter(year != 2021)%>%  
+  select(year,`Main_methodology`)%>%
+  separate_longer_delim(`Main_methodology`, delim = "|||")
+  count() %>% 
+  ungroup() %>%
+  add_row(year = 1951, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 2)%>%
+  add_row(year = 1952, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 3)%>%
+  add_row(year = 1953, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 4)%>%
+  add_row(year = 1954, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 5)%>%
+  add_row(year = 1955, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 6)%>%
+  add_row(year = 1956, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 7)%>%
+  add_row(year = 1957, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 8)%>%
+  add_row(year = 1958, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 9)%>%
+  add_row(year = 1960, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 11)%>%
+  add_row(year = 1961, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 12)%>%
+  add_row(year = 1962, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 13)%>%
+  add_row(year = 1963, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 14)%>%
+  add_row(year = 1965, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 16)%>%
+  add_row(year = 1966, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 17)%>%
+  add_row(year = 1969, `Anthropogenic driver(s)` = "Direct exploitation", n = 0, .before = 20)%>% 
+  drop_na() 
 
-#Figure 5 Methods per driver ----
+#order:
+# 1. Pollution
+# 2. Direct exploitation
+# 3. Climate change
+# 4. Sea use chage
+# 5. Biological invasion
+# 6. Global change
+
+#add colors
+#1. Pollution
+dat_1 <- dat[dat$`Anthropogenic driver(s)` == "Pollution",]
+
+colours <- NULL
+colours[dat_1$`Organizational level` == "Ecosystem"]      <-"purple"
+colours[dat_1$`Organizational level` == "Community"]      <-"purple1"
+colours[dat_1$`Organizational level` == "Population"]     <-"purple2"
+colours[dat_1$`Organizational level` == "Individual"]     <-"purple3"
+colours[dat_1$`Organizational level` == "Not_applicable"] <-"purple4"
+dat_1$colours <- colours
+
+#2. Direct exploitation
+dat_2 <- dat[dat$`Anthropogenic driver(s)` == "Direct_exploitation",]
+
+colours <- NULL
+colours[dat_2$`Organizational level` == "Ecosystem"]      <-"blue"
+colours[dat_2$`Organizational level` == "Community"]      <-"blue1"
+colours[dat_2$`Organizational level` == "Population"]     <-"blue2"
+colours[dat_2$`Organizational level` == "Individual"]     <-"blue3"
+colours[dat_2$`Organizational level` == "Not_applicable"] <-"blue4"
+dat_2$colours <- colours
+
+#3. Climate change
+dat_3 <- dat[dat$`Anthropogenic driver(s)` == "Climate_change",]
+
+colours <- NULL
+colours[dat_3$`Organizational level` == "Ecosystem"]      <-"orange1"
+colours[dat_3$`Organizational level` == "Community"]      <-"orange2"
+colours[dat_3$`Organizational level` == "Population"]     <-"orange3"
+colours[dat_3$`Organizational level` == "Individual"]     <-"orange4"
+colours[dat_3$`Organizational level` == "Not_applicable"] <-"orange"
+dat_3$colours <- colours
+
+#4. Sea use change
+dat_4 <- dat[dat$`Anthropogenic driver(s)` == "Sea_use_change",]
+
+colours <- NULL
+colours[dat_4$`Organizational level` == "Ecosystem"]      <-"gold"
+colours[dat_4$`Organizational level` == "Community"]      <-"gold1"
+colours[dat_4$`Organizational level` == "Population"]     <-"gold2"
+colours[dat_4$`Organizational level` == "Individual"]     <-"gold3"
+colours[dat_4$`Organizational level` == "Not_applicable"] <-"gold4"
+dat_4$colours <- colours
+
+#5. Biological invasion
+dat_5 <- dat[dat$`Anthropogenic driver(s)` == "Biological_invasion",]
+
+colours <- NULL
+colours[dat_5$`Organizational level` == "Ecosystem"]      <-"turquoise"
+colours[dat_5$`Organizational level` == "Community"]      <-"turquoise1"
+colours[dat_5$`Organizational level` == "Population"]     <-"turquoise2"
+colours[dat_5$`Organizational level` == "Individual"]     <-"turquoise3"
+colours[dat_5$`Organizational level` == "Not_applicable"] <-"turquoise4"
+dat_5$colours <- colours
+
+#6. Biological invasion
+dat_6 <- dat[dat$`Anthropogenic driver(s)` == "Global_change",]
+
+colours <- NULL
+colours[dat_6$`Organizational level` == "Ecosystem"]      <-"darkolivegreen1"
+colours[dat_6$`Organizational level` == "Community"]      <-"darkolivegreen2"
+colours[dat_6$`Organizational level` == "Population"]     <-"darkolivegreen3"
+colours[dat_6$`Organizational level` == "Individual"]     <-"darkolivegreen4"
+colours[dat_6$`Organizational level` == "Not_applicable"] <-"darkolivegreen"
+dat_6$colours <- colours
+
+#combine datasets again
+dat_all <- rbind(dat_1,dat_2,dat_3,dat_4,dat_5,dat_6)
+col <- dat_all$colours
+
+#add levels
+dat_all$`Organizational level` <- factor(dat_all$`Organizational level`, levels = c("Ecosystem","Community","Population","Individual","Not_applicable"))
+
+#line_plots
+dat_1$`Organizational level` <- factor(dat_1$`Organizational level`, levels = c("Ecosystem","Community","Population","Individual","Not_applicable"))
+
+
+
+ggplot (dat_all) +
+  geom_line(aes(year, n, col =colours))+
+  facet_wrap(~`Anthropogenic driver(s)`+ `Organizational level`)+
+  labs(x="Year", y="nr of papers")+
+  theme_test()+
+  theme(legend.position="none")
+
+
+#barplot
+
+ggplot(dat_all)+
+  geom_bar(aes(x=factor(`Anthropogenic driver(s)`,levels = c("Pollution","Direct_exploitation","Climate_change",
+                                                             "Sea_use_change","Biological_invasion","Global_change")),
+               y = n, group=`Organizational level`), 
+           stat="identity", fill = col)+
+  coord_flip()+
+  labs(x="Anthropogenic driver", y = "Number of papers")+
+  theme_test()+
+  theme(legend.position = "bottom")
+
+
+#Figure 5 Methods over time ----
+dat <-answers_meta_final%>%
+  separate_rows(`Main_methodology`, sep = "\\|\\|\\|")%>%
+  mutate(`Main_methodology` = recode(`Main_methodology`, "NA"="NA", "Field_observations_measurement"="Field observations measurement",
+                                     "Modelling"="Modelling", "Experiment"="Experiment","Review"="Review", "Meta_analysis"="Meta analysis"))%>%
+  select(nr, year, `Main_methodology`)%>%
+  filter(year != 2021)%>%
+  group_by(year, `Main_methodology`)%>%
+  count() %>% 
+  ungroup() %>% 
+  pivot_wider(names_from = `Main_methodology`, values_from = n, values_fill = 0)
+
+ggplot(dat)+
+  geom_line(aes(year,n,col = `Main_methodology`))
+
+# relative contributions
+dat_relative <- dat%>%
+  group_by(year)%>%
+  mutate("sum_of_papers" = sum(c(`Field observations measurement`, `Modelling`, `Experiment`, `Review`, `NA`)))%>%
+  mutate("Field observations measurement" = `Field observations measurement`/sum_of_papers, 
+         "Modelling" = `Modelling`/sum_of_papers,
+         "Experiment" = `Experiment`/sum_of_papers,
+         "Review" = `Review`/sum_of_papers,
+         "NA" = `NA`/sum_of_papers) 
+
+
+dat_relative[is.na(dat_relative)] <- 0
+
+# as stacked barplot
+dat_relative_2 <- dat_relative%>%
+  select(year, `Field observations measurement`:`Meta analysis`)%>%
+  pivot_longer(!year, names_to = "Main_methodology", values_to = "Proportion")
+dat_relative_2$`Main_methodology` <- factor(dat_relative_2$`Main_methodology`, levels = rev(c("Field observations measurement", "Experiment","Modelling","Meta analysis","Review","NA")))
+
+bars_figure1 <- ggplot(dat_relative_2, aes(x = year, y = Proportion, fill = `Main_methodology`))+
+  geom_col()+
+  #scale_fill_brewer(palette = "Paired")+
+  labs(x = "Year")+
+  ylim(0, 1)+
+  theme_test()+
+  theme(legend.position = "bottom")+ 
+  guides(fill=guide_legend(title="Main methodology"))
+bars_figure1
+
+nr_papers_figure1 <- ggplot(dat_relative, aes(x = year, y = sum_of_papers))+
+  geom_line()+
+  labs(y = "Nr of papers", x = "")+
+  theme_test()
+nr_papers_figure1
+
+gridExtra::grid.arrange(grobs = list(nr_papers_figure1, bars_figure1), nrow = 2, ncol = 1, 
+                        heights = c(1, 3))
+
+#Figure 6 Methods per driver ----
 
 # Figure SI ----
 # Datensatz zu groß durch das selecten von allen columns. 
