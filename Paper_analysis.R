@@ -630,7 +630,9 @@ bars_figure5 <- ggplot(dat_relative_2, aes(x = year, y = Proportion, fill = `Mai
   labs(x = "Year")+
   ylim(0, 1)+
   theme_test()+
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom")+ 
+  guides(fill=guide_legend(title="Main methodology"))
+  
 bars_figure5
 
 nr_papers_figure1 <- ggplot(dat_relative, aes(x = year, y = sum_of_papers))+
