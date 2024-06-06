@@ -185,6 +185,10 @@ dat <- answers_meta_final%>%
                                                       "Climate_change" = "Climate change", "Direct_exploitation" = "Direct exploitation",
                                                       "Global_change" = "Global change", "Sea_use_change" = "Sea use change"))
   
+#with percentages and total numbers
+dat <- dat %>% group_by(`ICES_medium_location(s)`) %>%
+  mutate (relative_sum_paps = n/sum_paps,
+          sum_real = sum (relative_sum_paps))
 
 world <- map_data(("world"))
 worldmap <- ggplot(world, aes(x = long, y = lat))+
