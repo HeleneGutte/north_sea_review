@@ -443,6 +443,16 @@ dat_6$colours <- colours
 dat_all <- rbind(dat_1,dat_2,dat_3,dat_4,dat_5,dat_6)
 col <- dat_all$colours
 
+#calculate percentages
+dat_all1 <- dat_all %>% 
+  group_by(`Anthropogenic driver(s)`) %>% 
+  mutate(sum_all = sum(n)) 
+
+dat_all2 <- dat_all1 %>% 
+  group_by(`Anthropogenic driver(s)`,`Organizational level`) %>% 
+  mutate(sum_driver = sum(n),
+         paper_relative = (sum_driver/sum_all)) 
+
 #add levels
 dat_all$`Organizational level` <- factor(dat_all$`Organizational level`, levels = c("Ecosystem","Community","Population","Individual","Not_applicable"))
 
