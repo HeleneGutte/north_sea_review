@@ -677,6 +677,10 @@ dat_m <- answers_meta_final%>%
 dat_m1 <- dat_m %>% 
   group_by(`Anthropogenic driver(s)`) %>% mutate(sum_p = sum(n))
 
+#add percentages
+dat_m1 <- dat_m1 %>% 
+  mutate(paper_relative = n/sum_p )
+
 #add colors
 meth_colours <- c("Field observations measurement" = "tomato", "Experiment" = "darkseagreen1", 
                   "Meta analysis" = "deepskyblue", "Modelling" = "lightsalmon", "Review" = "magenta3", 
