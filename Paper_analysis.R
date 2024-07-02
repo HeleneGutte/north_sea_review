@@ -77,7 +77,7 @@ other_population
 # write_csv(other_drivers, file = "Data/other_drivers.csv")
 # write_csv(other_population, file = "Data/other_population.csv")
 
-# Figure 1 Main drivers over time ----
+# Figure 2 Main drivers over time ----
 dat <- answers_meta_final%>%
   separate_rows(`Anthropogenic driver(s)`, sep = "\\|\\|\\|")%>%
   mutate(`Anthropogenic driver(s)` = recode(`Anthropogenic driver(s)`, "Biological_invasion" = "Biological invasion",
@@ -173,7 +173,7 @@ nr_papers_figure1_grob <- ggplotGrob(nr_papers_figure1)
 bars_figure1 + annotation_custom(grob = nr_papers_figure1_grob, 
                                  xmin = 1942, xmax = 2024, ymin = 1, ymax = 1.5)
 
-# Figure 2 spatial distribution of main drivers ----
+# Figure 3 spatial distribution of main drivers ----
 dat <- answers_meta_final%>%
   filter(year != 2021)%>%  
   select(nr, `Anthropogenic driver(s)`, `ICES_medium_location(s)`)%>%
@@ -247,7 +247,7 @@ ggplot(data = dat, aes(x = `Anthropogenic driver(s)`, y = n))+
         legend.position = "bottom", 
         strip.text = element_blank())
 
-# Figure 3 Sankey diagrams for each main driver ----
+# Figure 4,5 Sankey diagrams for each main driver ----
 #install.packages("networkD3")
 library(networkD3)
 dat <- answers_meta_final%>%
@@ -331,7 +331,7 @@ sankey_ploty[[4]]
 sankey_ploty[[5]]
 sankey_ploty[[6]]
 
-#Figure 4 Driver in nr of papers----
+#Figure 6 Driver in nr of papers----
 dat <- answers_meta_final%>%
 filter(year != 2021)%>%  
 select(year,`Anthropogenic driver(s)`, `Organizational level`)%>%
@@ -471,17 +471,22 @@ barplot
 
 #line plots
 # 1. Pollution
+dat_1 <- as.data.frame(dat_1)
+dat_1$year <- as.Date(dat_1$year, "%y")
+breaks.vec <- seq(1945, max(dat_1$year), by = "10 years")
+
 lines_1 <- ggplot(dat_1)+
   geom_line(mapping= aes(year, n, col = factor(colours)))+
   scale_color_identity()+
   theme_test()+
   labs(x="", y= "")+
   ylim(0,30)+
-  xlim(1940,2020)+
+  scale_x_continuous(limits = c(1945, 2020), breaks = c(1945, 1965,1985, 2005, 2020))+
   facet_wrap(~factor(`Organizational level`,c("Not applicable","Individual","Population","Community","Ecosystem")),nrow=1)+
   theme(
     strip.background = element_blank(),
-    strip.text = element_blank())
+    strip.text = element_blank(),
+    axis.text.x = element_text(angle = 90))
 lines_1
 
 # 2. Direct exploitation
@@ -583,7 +588,7 @@ p2
 
 lines_6+lines_5+lines_4+lines_3+lines_2+lines_1+plot_layout(nrow=6)
 
-#Figure 5 Methods over time ----
+#Figure 7 Methods over time ----
 dat <-answers_meta_final%>%
   separate_rows(`Main_methodology`, sep = "\\|\\|\\|")%>%
   mutate(`Main_methodology` = recode(`Main_methodology`, "NA"="NA", "Field_observations_measurement"="Field observations measurement",
@@ -658,7 +663,7 @@ nr_papers_figure1
 gridExtra::grid.arrange(grobs = list(nr_papers_figure1, bars_figure5), nrow = 2, ncol = 1, 
                         heights = c(1, 3))
 
-#Figure 6 Methods per driver ----
+#Figure 8 Methods per driver ----
 dat_m <- answers_meta_final%>%
   filter(year != 2021)%>%  
   select(nr, `Anthropogenic driver(s)`,`Main_methodology`)%>%
