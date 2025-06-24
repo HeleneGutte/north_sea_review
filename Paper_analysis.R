@@ -15,7 +15,7 @@ my_colours <- c("Climate change" = "orange2", "Direct exploitation" = "blue",
 
 # 3. prepare data table ----
 
-answers_meta_final <- answers_meta_final%>%
+answers_meta_final_incl <- answers_meta_final%>%
   rename("nr" = ...1)%>%
   dplyr::filter(Include == TRUE)%>%# 4739 - 3360 = 1379
   dplyr::filter(!is.na(`Anthropogenic driver(s)`))%>%# 3360 - 1 = 1380
@@ -24,6 +24,32 @@ answers_meta_final <- answers_meta_final%>%
   dplyr::filter(!is.na(`Nature of the study population`)) #3356
 # 1383 have been excluded from the analysis, 
 # because they were marked as irrelevant or missing important information
+
+answers_meta_final_excl <- answers_meta_final%>%
+  rename("nr" = ...1)%>%
+  # dplyr::filter(is.na(`Anthropogenic driver(s)`))%>%# 3360 - 1 = 1380
+  # dplyr::filter(is.na(`Precision_of_the driver(s)`))%>%#-2
+  # dplyr::filter(is.na(`Analyzed impact(s)`))%>% #-1
+  # dplyr::filter(is.na(`Nature of the study population`))%>%
+  dplyr::filter(Include == FALSE)#3356
+
+answers_NA <- answers_meta_final%>%
+  rename("nr" = ...1)%>%
+  dplyr::filter(Include == TRUE)%>%
+  dplyr::filter(is.na(`Anthropogenic driver(s)`) | is.na(`Precision_of_the driver(s)`) | is.na(`Analyzed impact(s)`) | is.na(`Nature of the study population`))
+
+answers_meta_final_excl <- rbind(answers_meta_final_excl, answers_NA)
+
+#write.csv(answers_meta_final_incl, "Figures/Additional_files/Additional File 3a_included_full_text_answers_meta.csv")
+#write.csv(answers_meta_final_excl, "Figures/Additional_files/Additional File 3b_excluded_full_text_answers_meta.csv")
+
+answers_meta_final <- answers_meta_final%>%
+  rename("nr" = ...1)%>%
+  dplyr::filter(Include == TRUE)%>%# 4739 - 3360 = 1379
+  dplyr::filter(!is.na(`Anthropogenic driver(s)`))%>%# 3360 - 1 = 1380
+  dplyr::filter(!is.na(`Precision_of_the driver(s)`))%>%#-2
+  dplyr::filter(!is.na(`Analyzed impact(s)`))%>% #-1
+  dplyr::filter(!is.na(`Nature of the study population`)) #3356
 
 # test how to best split up labels
 # paper1 <- answers_meta_final%>%
